@@ -1,0 +1,15 @@
+{
+    "name": "ciki/dataminer-client",
+    "description": "Typed value objects (and eventually HTTP client) for the dataminer.sk OCR API. Provides the single source of truth for the OCR response shape consumed by dataminer itself and by external clients (ekonix, ...).",
+    "type": "library",
+    "license": "MIT",
+    "require": {
+        "php": ">=8.5"
+    },
+    "autoload": {
+        "psr-4": {
+            "Ciki\\Dataminer\\Client\\": "src/"
+        }
+    },
+    "minimum-stability": "stable"
+}
