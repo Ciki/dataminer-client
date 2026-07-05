@@ -26,6 +26,9 @@ final readonly class OcrData implements JsonSerializable
 {
 	public const string DOCUMENT_TYPE_INVOICE = 'invoice';
 	public const string DOCUMENT_TYPE_RECEIPT = 'receipt';
+	public const string DOCUMENT_TYPE_PROFORMA = 'proforma';
+	public const string DOCUMENT_TYPE_CREDIT_NOTE = 'credit_note';
+	public const string DOCUMENT_TYPE_DEBIT_NOTE = 'debit_note';
 	public const string DOCUMENT_TYPE_OTHER = 'other';
 	public const string PAYMENT_METHOD_CATEGORY_TRANSFER = 'transfer';
 	public const string PAYMENT_METHOD_CATEGORY_CASH = 'cash';
@@ -44,6 +47,7 @@ final readonly class OcrData implements JsonSerializable
 		public string $documentType,
 		public ?string $language,
 		public ?string $documentNumber,
+		public ?string $orderNumber,
 		public ?string $issueDate,
 		public ?string $dueDate,
 		public ?string $deliveryDate,
@@ -88,6 +92,7 @@ final readonly class OcrData implements JsonSerializable
 			documentType: $validated['document_type'],
 			language: $validated['language'],
 			documentNumber: $validated['document_number'],
+			orderNumber: $validated['order_number'] ?? null,
 			issueDate: $validated['issue_date'],
 			dueDate: $validated['due_date'],
 			deliveryDate: $validated['delivery_date'],
@@ -117,6 +122,7 @@ final readonly class OcrData implements JsonSerializable
 			'document_type' => $this->documentType,
 			'language' => $this->language,
 			'document_number' => $this->documentNumber,
+			'order_number' => $this->orderNumber,
 			'issue_date' => $this->issueDate,
 			'due_date' => $this->dueDate,
 			'delivery_date' => $this->deliveryDate,
