@@ -41,6 +41,7 @@ final readonly class OcrData implements JsonSerializable
 
 	/**
 	 * @param list<OcrLineItem> $items
+	 * @param list<OcrVatSummaryLine> $vatSummary Per-rate VAT breakdown; non-empty only on the eKasa OPD path, empty on the LLM path (see OcrVatSummaryLine)
 	 * @param array<string,mixed> $additionalInfo LLM-extension bucket declared in schema as `Expect::array([])` - free-form, no validation, but always emitted by the prompt
 	 */
 	public function __construct(
@@ -59,6 +60,7 @@ final readonly class OcrData implements JsonSerializable
 		public OcrParty $customer,
 		public array $items,
 		public OcrTotals $totals,
+		public array $vatSummary,
 		public ?string $notes,
 		public ?string $summary,
 		public ?string $paymentReference,
@@ -85,6 +87,8 @@ final readonly class OcrData implements JsonSerializable
 	{
 		/** @var list<array{item_number: string|int|null, description: ?string, quantity: ?float, unit: ?string, unit_price: ?float, discount_percent: ?float, tax_rate: ?float, tax_amount: ?float, total_without_tax: ?float, total_with_tax: ?float}> $itemsRaw */
 		$itemsRaw = $validated['items'];
+		/** @var list<array{rate: ?float, base: ?float, amount: ?float}> $vatSummaryRaw */
+		$vatSummaryRaw = $validated['vat_summary'] ?? [];
 		/** @var array<string,mixed> $additionalInfo */
 		$additionalInfo = $validated['additional_info'] ?? [];
 
@@ -104,6 +108,7 @@ final readonly class OcrData implements JsonSerializable
 			customer: OcrParty::fromValidatedArray($validated['customer']),
 			items: array_map(OcrLineItem::fromValidatedArray(...), $itemsRaw),
 			totals: OcrTotals::fromValidatedArray($validated['totals']),
+			vatSummary: array_map(OcrVatSummaryLine::fromValidatedArray(...), $vatSummaryRaw),
 			notes: $validated['notes'],
 			summary: $validated['summary'],
 			paymentReference: $validated['payment_reference'],
@@ -134,6 +139,7 @@ final readonly class OcrData implements JsonSerializable
 			'customer' => $this->customer->jsonSerialize(),
 			'items' => array_map(static fn(OcrLineItem $i): array => $i->jsonSerialize(), $this->items),
 			'totals' => $this->totals->jsonSerialize(),
+			'vat_summary' => array_map(static fn(OcrVatSummaryLine $v): array => $v->jsonSerialize(), $this->vatSummary),
 			'notes' => $this->notes,
 			'summary' => $this->summary,
 			'payment_reference' => $this->paymentReference,
