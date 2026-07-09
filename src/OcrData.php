@@ -85,7 +85,7 @@ final readonly class OcrData implements JsonSerializable
 	 */
 	public static function fromValidatedArray(array $validated): self
 	{
-		/** @var list<array{item_number: string|int|null, description: ?string, quantity: ?float, unit: ?string, unit_price: ?float, discount_percent: ?float, tax_rate: ?float, tax_amount: ?float, total_without_tax: ?float, total_with_tax: ?float}> $itemsRaw */
+		/** @var list<array{item_number: string|int|null, description: ?string, quantity: ?float, unit: ?string, unit_price_without_tax?: ?float, unit_price_with_tax?: ?float, unit_price?: ?float, discount_percent: ?float, tax_rate: ?float, tax_amount: ?float, total_without_tax: ?float, total_with_tax: ?float}> $itemsRaw */
 		$itemsRaw = $validated['items'];
 		/** @var list<array{rate: ?float, base: ?float, amount: ?float}> $vatSummaryRaw */
 		$vatSummaryRaw = $validated['vat_summary'] ?? [];

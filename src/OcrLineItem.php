@@ -13,6 +13,10 @@ use JsonSerializable;
  * convenience - consumers only ever display the value or persist it as text. The int → string
  * cast is lossless; original LLM bytes (including int form) remain visible in
  * `ocr_requests.raw_provider_response` if prompt iteration ever needs them.
+ *
+ * Unit price is a without/with-tax PAIR because documents print either semantics: invoices
+ * typically a net unit price, fuel/retail receipts a gross one. Extraction fills only the
+ * printed field; the API's derive option can fill the missing counterpart arithmetically.
  */
 final readonly class OcrLineItem implements JsonSerializable
 {
@@ -21,7 +25,8 @@ final readonly class OcrLineItem implements JsonSerializable
 		public ?string $description,
 		public ?float $quantity,
 		public ?string $unit,
-		public ?float $unitPrice,
+		public ?float $unitPriceWithoutTax,
+		public ?float $unitPriceWithTax,
 		public ?float $discountPercent,
 		public ?float $taxRate,
 		public ?float $taxAmount,
@@ -36,7 +41,9 @@ final readonly class OcrLineItem implements JsonSerializable
 	 *     description: ?string,
 	 *     quantity: ?float,
 	 *     unit: ?string,
-	 *     unit_price: ?float,
+	 *     unit_price_without_tax?: ?float,
+	 *     unit_price_with_tax?: ?float,
+	 *     unit_price?: ?float,
 	 *     discount_percent: ?float,
 	 *     tax_rate: ?float,
 	 *     tax_amount: ?float,
@@ -52,7 +59,10 @@ final readonly class OcrLineItem implements JsonSerializable
 			description: $validated['description'],
 			quantity: $validated['quantity'],
 			unit: $validated['unit'],
-			unitPrice: $validated['unit_price'],
+			// Legacy fallback: payloads stored before the pair split carry a single `unit_price`,
+			// which consumers always treated as the net price - map it to withoutTax.
+			unitPriceWithoutTax: $validated['unit_price_without_tax'] ?? $validated['unit_price'] ?? null,
+			unitPriceWithTax: $validated['unit_price_with_tax'] ?? null,
 			discountPercent: $validated['discount_percent'],
 			taxRate: $validated['tax_rate'],
 			taxAmount: $validated['tax_amount'],
@@ -70,7 +80,8 @@ final readonly class OcrLineItem implements JsonSerializable
 			'description' => $this->description,
 			'quantity' => $this->quantity,
 			'unit' => $this->unit,
-			'unit_price' => $this->unitPrice,
+			'unit_price_without_tax' => $this->unitPriceWithoutTax,
+			'unit_price_with_tax' => $this->unitPriceWithTax,
 			'discount_percent' => $this->discountPercent,
 			'tax_rate' => $this->taxRate,
 			'tax_amount' => $this->taxAmount,
